@@ -4,22 +4,31 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="Chenglong Zhang ">
-    <link rel="stylesheet" type="text/css" href="css/style.css" />
-    <title>Neighborhood Map of coffee shops around you</title>
+    <!-- Load the page styles. -->
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/normalize.css" />
+    <!-- Load google font. -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <title>Walking distance coffee shop around you</title>
   </head>
     
   <body>
      <div id="map"></div>
+     <div id="search">
+      <input data-bind="userLocation" id="search-area" placeholder="set your location">
+      <button id="search-button"></button>
+    </div>
+    <footer id="information"></footer>
   </body>
-    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
-    
-    <!--Google maps Api used for the project-->
-   <script async defer
+
+ <!--Google maps API used for the project-->
+ <script 
      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD0nBWUzQGN-jxuR4nwBy_cJQkDnYWWWVI&v=3">
-   </script>
-    <!--Knockout as MVVM framework used for the project-->
-   <script async defer src="js/lib/knockout-3.4.1-min.js"></script>
-    <!--Main js excuted file to utilize the knockout framework-->
-   <script async defer src="js/app.js"></script>
+ </script>
+  <!--Use jQuery library to initial the initMap function and get the Dom elements-->
+ <script src="js/lib/jquery-3.1.1.min.js"></script>
+  <!--Knockout as MVVM framework used for the project-->
+ <script src="js/lib/knockout-3.4.1-min.js"></script>
+  <!--Main js excuted file to utilize the knockout framework-->
+ <script src="js/app.js"></script>
 </html>
