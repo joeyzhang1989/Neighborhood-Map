@@ -1,6 +1,8 @@
 
 var map;// declares a global map variable
 var defaultAddress = {lat:  45.496814, lng: -73.58248};
+var markers = []; // create a blank array to store the makers
+var placeMarkers = []; // create placemarkers array to use in multiple functions to have control over the number of places that show.
 var mapViewModel = function() {
 	var self = this;
 	//initial the google maps object
@@ -143,7 +145,14 @@ var mapViewModel = function() {
 	      disableDefaultUI: true,
 	      styles: styles
 	    });
-     }
+	    
+	    document.getElementById('search-area').addListener();
+	    // Create a searchbox in order to execute a places search
+        var searchBox = new google.maps.places.SearchBox(
+            document.getElementById('search-area'));
+        // Bias the searchbox to within the bounds of the map.
+        searchBox.setBounds(map.getBounds());
+    }
      // initial the map object
     initMap();
 };

@@ -6,24 +6,37 @@
     <meta name="author" content="Chenglong Zhang ">
     <!-- Load the page styles. -->
     <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/normalize.css" />
+    <!-- Fallback for browsers do not support HTML5. -->
+    <link rel="stylesheet" href="css/normalize.css" /> 
     <!-- Load google font. -->
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-    <title>Walking distance coffee shop around you</title>
+    <title>Walking distance coffee shop around you in Montreal</title>
   </head>
     
   <body>
      <div id="map"></div>
      <div id="search">
-      <input data-bind="userLocation" id="search-area" placeholder="set your location">
-      <button id="search-button"></button>
-    </div>
-    <footer id="information"></footer>
+      <input data-bind="userLocation" id="search-area" placeholder="Set neighborhood location">
+     </div>
+     <div id="distance">
+       <p id="text">Within</p>
+      <select id="max-duration">
+        <option value="10">10 min</option>
+        <option value="15">15 min</option>
+        <option value="30">30 min</option>
+      </select>
+      <select id="mode">
+        <option value="WALKING">walk</option>
+        <option value="BICYCLING">bike</option>
+      </select>
+       <input id="search-within-time" type="button" value="Go">
+     </div>
+     <div id="places" data-bind=""></div>
   </body>
 
  <!--Google maps API used for the project-->
  <script 
-     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD0nBWUzQGN-jxuR4nwBy_cJQkDnYWWWVI&v=3">
+     src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry&key=AIzaSyD0nBWUzQGN-jxuR4nwBy_cJQkDnYWWWVI&v=3">
  </script>
   <!--Use jQuery library to initial the initMap function and get the Dom elements-->
  <script src="js/lib/jquery-3.1.1.min.js"></script>

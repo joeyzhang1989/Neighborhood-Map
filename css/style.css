@@ -3,7 +3,7 @@ html, body{
     padding: 0;
     height: 100%;
     width: 100%;
-    font-size: 16px;
+    font-size: 12px;
     font-family: 'Roboto', sans-serif;
 }
 
@@ -15,7 +15,8 @@ html, body{
 
 #search {
   display: flex;
-  width: 40%;
+  border-radius: 10px;
+  width: 60%;
   height: 40px;
   position: absolute;
   margin-left: 20px;
@@ -24,20 +25,23 @@ html, body{
 
 #search-area {
   display: block;
-  width: 100%;
-  height: 100%;
+  width: 50%;
   margin: 0;
   padding: 0 0 0 10px;
-  border: 1px;
+  border-color: #000000;
 }
 
-#search-button {
-  background: url("../img/button-icon.png");
-  background-size: 40px;
-  background-color: #7d97ad;
-  width: 48px;
-  height: 40px;
-  border-radius: 2px 0 2px 0;
-  padding: 0px;
-  cursor: pointer;
+
+#distance {
+  display: flex;
+  top: 80px;
+  margin-left: 20px;
+  position: absolute;
+  width: 50%;
+  border-color: #000000;
 }
+
+/*#mode {
+  width: 25%;
+  border-color: #000000;
+}*/
