@@ -1,11 +1,11 @@
 
-var map;// declares a global map variable
-var defaultAddress = {lat:  45.496814, lng: -73.58248};
-var markers = []; // create a blank array to store the makers
-var placeMarkers = []; // create placemarkers array to use in multiple functions to have control over the number of places that show.
 var mapViewModel = function() {
 	var self = this;
-	//initial the google maps object
+	var map;// declares a global map variable
+	var defaultAddress = {lat:  45.496814, lng: -73.58248};
+	var neighborhoodMarker = []; // create a blank array to store the makers
+	var placeMarkers = []; // create placemarkers array to use in multiple functions to have control over the number of places that show.
+	
 	function initMap() {
 	/*
 	This is google maps customized styles "Subtle Grayscale " 
@@ -139,19 +139,53 @@ var mapViewModel = function() {
 	    ];
 	    map = new google.maps.Map(document.getElementById("map"),{
 	      center: defaultAddress,
-	      zoom: 14,
+	      zoom: 13,
 	      animation: google.maps.Animation.DROP,
 	      mapTypeControl: false,
 	      disableDefaultUI: true,
 	      styles: styles
 	    });
-	    
-	    document.getElementById('search-area').addListener();
-	    // Create a searchbox in order to execute a places search
-        var searchBox = new google.maps.places.SearchBox(
-            document.getElementById('search-area'));
-        // Bias the searchbox to within the bounds of the map.
-        searchBox.setBounds(map.getBounds());
+
+	    // find search box DOM element
+        var searchBox = document.getElementById('search-area');
+        //use the google maps Autocomplete
+        var autocomplete = new google.maps.places.Autocomplete(searchBox);
+        autocomplete.bindTo('bounds', map);
+        // add listener to the autocomplete
+        autocomplete.addListener('place_changed', function() {
+          // customize the icon image 
+          var image = {
+	          url: 'img/neighborhood.png',
+	          // This marker is 20 pixels wide by 32 pixels high.
+	          size: new google.maps.Size(48, 48),
+	          // The origin for this image is (0, 0).
+	          origin: new google.maps.Point(0, 0),
+	          // The anchor for this image is the base of the flagpole at (0, 32).
+	          anchor: new google.maps.Point(0, 48)
+          };
+          //defined the clicked area of the icon
+          var shape = {
+	          coords: [1, 1, 1, 20, 18, 20, 18, 1],
+	          type: 'poly'
+          };
+    	  var place = autocomplete.getPlace();
+          // neighborhood marker
+		  var marker = new google.maps.Marker({
+		      map: map,
+		      shape: shape,
+		      position: place.geometry.location,
+		      title: place.name,
+		      icon: image
+		  });
+
+          if (!place.geometry) {
+            // User entered the name of a Place that was not suggested and
+            // pressed the Enter key, or the Place Details request failed.
+            window.alert("No location available for input: '" + place.name + "'");
+            return;
+          }
+          marker.setPosition(place.geometry.location);
+        }); 
     }
      // initial the map object
     initMap();
