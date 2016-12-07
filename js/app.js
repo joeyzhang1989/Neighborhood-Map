@@ -142,17 +142,11 @@ var mapViewModel = function() {
             // The anchor for this image is the base of the flagpole at (0, 32).
             anchor: new google.maps.Point(0, 48)
         };
-        //defined the clicked area of the icon
-        var shape = {
-            coords: [1, 1, 1, 20, 18, 20, 18, 1],
-            type: 'poly'
-        };
         neighborhoodMarker.length = 0; // clear the array to store the only place
         // neighborhood marker
         var marker = new google.maps.Marker({
             map: map,
             id: place.place_id,
-            shape: shape,
             position: place.geometry.location,
             title: place.name,
             icon: image
@@ -160,27 +154,25 @@ var mapViewModel = function() {
         neighborhoodMarker.push(marker);
         // create a single infowindow for the neighborhood marker
         var neighborhoodInfoWindow = new google.maps.InfoWindow();
-        var innerHtml;
-        // if a marker is clicked, opne the infowindow
-        marker.addListener('click', function() {
-            if (neighborhoodInfoWindow.marker == this) {
-                console.log("This infowindow already is on this marker!");
-            } else {
-                innerHtml += '<div>' + marker.title + '</div>'
-                neighborhoodInfoWindow.setContent('innerHtml');
-                neighborhoodInfoWindow.open(map, marker);
-            }
-        });
-        //cleared marker property if the neighborhoodInfoWindow is closed.
-        neighborhoodInfoWindow.addListener('closeclick', function() {
-            neighborhoodInfoWindow.marker = null;
-        });
+        setNeiborhoodMarkerInfoWindow(marker,neighborhoodInfoWindow);
          if (place.geometry.viewport) {
             map.fitBounds(place.geometry.viewport);
         } else {
             map.setCenter(place.geometry.location);
             map.setZoom(13); // Why 17? Because it looks good.
         }
+    }
+    function setNeiborhoodMarkerInfoWindow(marker,neighborhoodInfoWindow) {
+	    // if a marker is clicked, opne the infowindow
+	    var innerHTML = '<div>'+ marker.title +'</div>'
+         google.maps.event.addListener(marker,'click', function() {
+            neighborhoodInfoWindow.setContent(innerHTML);
+            neighborhoodInfoWindow.open(map, marker);
+        });
+        //cleared marker property if the neighborhoodInfoWindow is closed.
+        neighborhoodInfoWindow.addListener('closeclick', function() {
+            neighborhoodInfoWindow.marker = null;
+        });
     }
     // initial the map object
     initMap();
