@@ -16,7 +16,7 @@
   <body>
      <div id="map"></div>
      <div id="search">
-      <input data-bind="userLocation" id="search-area" placeholder="Set neighborhood location">
+      <input data-bind="value: neighborhood,attr: {placeholder: message}" id="search-area">
      </div>
      <div id="distance">
        <p id="text">Within</p>
