@@ -7,7 +7,7 @@ var venueMarkers = function(item) {
     this.phone = ko.observable(item.venue.contact.formattedPhone);
     this.rating = ko.observable(item.venue.rating);
     this.url = ko.observable(item.venue.url);
-    this.imgSrc = ko.observable('https://irs0.4sqi.net/img/general/100x100' + item.venue.photos.groups[0].items[0].suffix);
+    this.imgSrc = ko.observable('https://irs0.4sqi.net/img/general/300x200' + item.venue.photos.groups[0].items[0].suffix);
 };
 
 
@@ -26,7 +26,7 @@ var mapViewModel = function() {
     self.nearByPlaces = ko.observableArray([]); // nearby places based on the neighborhood location
     // create the infoWindow to be used for the marker is clicked to open
     if (typeof google != "undefined") {
-        var infoWindow = new google.maps.InfoWindow();
+        var infoWindow = new google.maps.InfoWindow({maxWidth: 300});
     }
     // initial the map object
     initMap();
@@ -177,16 +177,6 @@ var mapViewModel = function() {
             infoWindow.setContent(innerHTML);
             infoWindow.open(map, this);
         });
-        // //cleared marker property if the neighborhoodInfoWindow is closed.
-        // infoWindow.addListener('closeclick', function() {
-        //     infoWindow = null;
-        // });
-        // if (place.geometry.viewport) {
-        //     map.fitBounds(place.geometry.viewport);
-        // } else {
-        //     map.setCenter(place.geometry.location);
-        //     map.setZoom(13);
-        // }
     }
 
     // get the neiborhood location information and create the venue markers based that location
@@ -237,9 +227,13 @@ var mapViewModel = function() {
         if (phone === undefined) {
         	phone = 'Not Available Phone';
         }
+        if (venueURL === undefined) {
+        	venueURL = 'Not Available Website';
+        }
+        // '<em>' + rating + '</em> '<img class = foursquareLogo src = "img/foursquare.png" alt = "logo" >
         // venue info window HTML element content
-        var basicInfo = '<div class="venueInfo"><p class = venueName>' + name + '</p><p class="venueCategory">' + category + '</p><p class="venueAddress">' + address + '</p>';
-        var contactInfo = '<p class = venuePhone>' + phone + '</p><p class = venueURL><img class = foursquareLogo src = "img/foursquare.png" alt = "logo" ><span>' + rating + '</span><a herf = '+ venueURL +'>' + venueURL + '</span></p><div class = snapshot><img src = '+ imgSrc +'></div></div>';
+        var basicInfo = '<div class="venueInfo"><p class = venueName><img class = foursquareLogo src = "img/foursquare.png" alt = "logo" >'+ name +' '+'<em id = "rating">' + rating + '</em></p><p class="venueCategory">' + category + '</p><p class="venueAddress">' + address + '</p>';
+        var contactInfo = '<p class = venuePhone>' + phone + '</p><p class = venueURL><a herf = '+ venueURL +'>' + venueURL + '</a></p><div class = snapshot><img src = '+ imgSrc +'></div></div>';
         var venueContent = basicInfo + contactInfo;
         // customize the icon image 
         var image = {
