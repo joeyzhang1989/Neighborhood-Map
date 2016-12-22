@@ -31,16 +31,6 @@ html, body{
   border-color: #000000;
 }
 
-
-#distance {
-  display: flex;
-  top: 80px;
-  margin-left: 20px;
-  position: absolute;
-  width: 50%;
-  border-color: #000000;
-}
-
 #places {
   width: 40%;
   height: 80%;

@@ -1,5 +1,19 @@
+// Model for the nearBy place markers based on the neighborhood location
+var venueMarkers = function(item) {
+    this.name = ko.observable(item.venue.name);
+    this.location = ko.observable(item.venue.location);
+    this.category = ko.observable(item.venue.categories[0].name);
+    this.address = ko.observable(item.venue.location.formattedAddress);
+    this.phone = ko.observable(item.venue.contact.formattedPhone);
+    this.rating = ko.observable(item.venue.rating);
+    this.url = ko.observable(item.venue.url);
+    this.imgSrc = ko.observable('https://irs0.4sqi.net/img/general/100x100' + item.venue.photos.groups[0].items[0].suffix);
+};
+
+
 var mapViewModel = function() {
     var self = this;
+    var foursquare;
     var map; // declares a global map variable
     var defaultAddress = {
         lat: 45.496814,
@@ -9,7 +23,13 @@ var mapViewModel = function() {
     var placeMarkers = []; // create placemarkers array to use in multiple functions to have control over the number of places that show.
     self.neighborhood = ko.observable('');
     self.message = ko.observable('Set neighborhood location');
-    self.placeMarkers = ko.observableArray();
+    self.nearByPlaces = ko.observableArray([]); // nearby places based on the neighborhood location
+    // create the infoWindow to be used for the marker is clicked to open
+    if (typeof google != "undefined") {
+        var infoWindow = new google.maps.InfoWindow();
+    }
+    // initial the map object
+    initMap();
 
     function initMap() {
         /*
@@ -126,6 +146,7 @@ var mapViewModel = function() {
                 // for selected place, display the icon, name and location
                 // update the information when the marker is clicked
                 createMarkersForNeighborhood(place);
+                getNeiborhoodInformation(place);
             }
         });
     }
@@ -135,15 +156,13 @@ var mapViewModel = function() {
         // customize the icon image 
         var image = {
             url: 'img/neighborhood.png',
-            // This marker is 20 pixels wide by 32 pixels high.
+            // This marker is 48 pixels wide by 48 pixels high.
             size: new google.maps.Size(48, 48),
             // The origin for this image is (0, 0).
             origin: new google.maps.Point(0, 0),
-            // The anchor for this image is the base of the flagpole at (0, 32).
+            // The anchor for this image is the base of the flagpole at (0, 48).
             anchor: new google.maps.Point(0, 48)
         };
-        neighborhoodMarker.length = 0; // clear the array to store the only place
-        // neighborhood marker
         var marker = new google.maps.Marker({
             map: map,
             id: place.place_id,
@@ -152,32 +171,99 @@ var mapViewModel = function() {
             icon: image
         });
         neighborhoodMarker.push(marker);
-        // create a single infowindow for the neighborhood marker
-        var neighborhoodInfoWindow = new google.maps.InfoWindow();
-        setNeiborhoodMarkerInfoWindow(marker,neighborhoodInfoWindow);
-         if (place.geometry.viewport) {
-            map.fitBounds(place.geometry.viewport);
-        } else {
-            map.setCenter(place.geometry.location);
-            map.setZoom(13); // Why 17? Because it looks good.
-        }
-    }
-    function setNeiborhoodMarkerInfoWindow(marker,neighborhoodInfoWindow) {
-	    // if a marker is clicked, opne the infowindow
-	    var innerHTML = '<div>'+ marker.title +'</div>'
-         google.maps.event.addListener(marker,'click', function() {
-            neighborhoodInfoWindow.setContent(innerHTML);
-            neighborhoodInfoWindow.open(map, marker);
+        // if a marker is clicked, open the infowindow
+        var innerHTML = '<div>' + marker.title + '</div>';
+        google.maps.event.addListener(marker, 'click', function() {
+            infoWindow.setContent(innerHTML);
+            infoWindow.open(map, this);
         });
-        //cleared marker property if the neighborhoodInfoWindow is closed.
-        neighborhoodInfoWindow.addListener('closeclick', function() {
-            neighborhoodInfoWindow.marker = null;
-        });
+        // //cleared marker property if the neighborhoodInfoWindow is closed.
+        // infoWindow.addListener('closeclick', function() {
+        //     infoWindow = null;
+        // });
+        // if (place.geometry.viewport) {
+        //     map.fitBounds(place.geometry.viewport);
+        // } else {
+        //     map.setCenter(place.geometry.location);
+        //     map.setZoom(13);
+        // }
     }
-    // initial the map object
-    initMap();
-};
 
+    // get the neiborhood location information and create the venue markers based that location
+    function getNeiborhoodInformation(place) {
+        var lat = place.geometry.location.lat();
+        var lng = place.geometry.location.lng();
+        var neighborLocation = lat + "," + lng;
+
+        // get json from the foursquare api based on the user set location
+        foursquare = 'https://api.foursquare.com/v2/venues/explore?ll=' + neighborLocation + '';
+        extra = '&section=coffee&limit=15&sortByDistance=1&time=any&venuePhotos=1&oauth_token=11R24OTEDHVMGTG41PCGFSDICHFA3XKUTJSBQVSFNKYUGR12&v=20161220';
+        var foursquareUrl = foursquare + extra;
+        $.getJSON(foursquareUrl, function(data) {
+            var places = data.response.groups[0].items;
+            var bounds = data.response.suggestedBounds;
+            //loop the place to push the place item to the array nearByPlaces
+            places.forEach(function(item) {
+                self.nearByPlaces.push(new venueMarkers(item));
+            });
+            // loop the array nearByPlaces to set markers for place returned by foursquare
+            for (var i = 0, l = self.nearByPlaces().length; i < l; i++) {
+                createVenueMarkers(self.nearByPlaces()[i]);
+            }
+            // fit the map by suggested bounds
+            if (bounds !== undefined) {
+                mapBounds = new google.maps.LatLngBounds(
+                    new google.maps.LatLng(bounds.sw.lat, bounds.sw.lng),
+                    new google.maps.LatLng(bounds.ne.lat, bounds.ne.lng));
+                map.fitBounds(mapBounds);
+            }
+        }).fail(function(e) {
+            console.log('failed to load foursquare json');
+        });
+    }
+    // create the markers use the info returned by the foursquare API   
+    function createVenueMarkers(venue) {
+        // console.log(venue.location().lat);
+        var lat = venue.location().lat;
+        var lng = venue.location().lng;
+        var name = venue.name();
+        var category = venue.category();
+        var position = new google.maps.LatLng(lat, lng);
+        var address = venue.address();
+        var phone = venue.phone();
+        var imgSrc = venue.imgSrc();
+        var rating = venue.rating();
+        var venueURL = venue.url();
+        if (phone === undefined) {
+        	phone = 'Not Available Phone';
+        }
+        // venue info window HTML element content
+        var basicInfo = '<div class="venueInfo"><p class = venueName>' + name + '</p><p class="venueCategory">' + category + '</p><p class="venueAddress">' + address + '</p>';
+        var contactInfo = '<p class = venuePhone>' + phone + '</p><p class = venueURL><img class = foursquareLogo src = "img/foursquare.png" alt = "logo" ><span>' + rating + '</span><a herf = '+ venueURL +'>' + venueURL + '</span></p><div class = snapshot><img src = '+ imgSrc +'></div></div>';
+        var venueContent = basicInfo + contactInfo;
+        // customize the icon image 
+        var image = {
+            url: 'img/coffee.png',
+            // This marker is 32 pixels wide by 32 pixels high.
+            size: new google.maps.Size(32, 32),
+            // The origin for this image is (0, 0).
+            origin: new google.maps.Point(0, 0),
+            // The anchor for this image is the base of the flagpole at (0, 32).
+            anchor: new google.maps.Point(0, 32)
+        };
+        // nearBy coffee shops marker
+        var marker = new google.maps.Marker({
+            map: map,
+            position: position,
+            title: name,
+            icon: image
+        });
+        google.maps.event.addListener(marker, 'click', function() {
+            infoWindow.setContent(venueContent);
+            infoWindow.open(map, this);
+        });
+    }
+};
 /*
 when document is ready
 use IIFE to invoke the map initial funtion 
