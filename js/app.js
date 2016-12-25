@@ -26,7 +26,9 @@ var mapViewModel = function() {
     self.nearByPlaces = ko.observableArray([]); // nearby places based on the neighborhood location
     // create the infoWindow to be used for the marker is clicked to open
     if (typeof google != "undefined") {
-        var infoWindow = new google.maps.InfoWindow({maxWidth: 300});
+        var infoWindow = new google.maps.InfoWindow({
+            maxWidth: 300
+        });
     }
     // initial the map object
     initMap();
@@ -213,7 +215,6 @@ var mapViewModel = function() {
     }
     // create the markers use the info returned by the foursquare API   
     function createVenueMarkers(venue) {
-        // console.log(venue.location().lat);
         var lat = venue.location().lat;
         var lng = venue.location().lng;
         var name = venue.name();
@@ -225,15 +226,14 @@ var mapViewModel = function() {
         var rating = venue.rating();
         var venueURL = venue.url();
         if (phone === undefined) {
-        	phone = 'Not Available Phone';
+            phone = 'Not Available Phone';
         }
         if (venueURL === undefined) {
-        	venueURL = 'Not Available Website';
+            venueURL = 'Not Available Website';
         }
-        // '<em>' + rating + '</em> '<img class = foursquareLogo src = "img/foursquare.png" alt = "logo" >
         // venue info window HTML element content
-        var basicInfo = '<div class="venueInfo"><p class = venueName><img class = foursquareLogo src = "img/foursquare.png" alt = "logo" >'+ name +' '+'<em id = "rating">' + rating + '</em></p><p class="venueCategory">' + category + '</p><p class="venueAddress">' + address + '</p>';
-        var contactInfo = '<p class = venuePhone>' + phone + '</p><p class = venueURL><a herf = '+ venueURL +'>' + venueURL + '</a></p><div class = snapshot><img src = '+ imgSrc +'></div></div>';
+        var basicInfo = '<div class="venueInfo"><p class = venueName><img class = foursquareLogo src = "img/foursquare.png" alt = "logo" >' + name + ' ' + '<em id = "rating">' + rating + '</em></p><p class="venueCategory">' + category + '</p><p class="venueAddress">' + address + '</p>';
+        var contactInfo = '<p class = venuePhone>' + phone + '</p><p class = venueURL><a href = ' + venueURL + ' target="_blank">' + venueURL + '</a></p><div class = snapshot><img src = ' + imgSrc + '></div></div>';
         var venueContent = basicInfo + contactInfo;
         // customize the icon image 
         var image = {
@@ -257,6 +257,31 @@ var mapViewModel = function() {
             infoWindow.open(map, this);
         });
     }
+
+    // remove the markers when the new neighborhood loaction is set
+    function removeMarker(){
+    	for (place in self.nearByPlaces) {
+    		self.nearByPlaces()[place].setMap(null);
+    		if (self.nearByPlaces().length > 0) {
+    			self.nearByPlaces().pop();
+    		}
+     	}
+    }
+
+    	/**
+	 * when the itme on the display list is clicked
+	 * the correspoding marker if the item name matched 
+	 * with the marker's titleon the map will be focused and opend 
+	 */
+	self.focusMarker = function(venue) {
+		var venueName = venue.name();
+		for (var i = 0; i < Markers.length; i++) {
+			if (Markers[i].title == venueName) {
+				google.maps.event.trigger(Markers[i], 'click');
+				neighborMap.panTo(Markers[i].position);
+			}
+		}
+	}
 };
 /*
 when document is ready
