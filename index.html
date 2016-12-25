@@ -20,14 +20,20 @@
      </div>
        <div class="places">
        <ul class="placeList" data-bind="foreach: nearByPlaces">
-        <li class="listItem" data-bind="click: $root.focusMarker">
-            <h4 class="venueName" data-bind="text: name"></h4>  
-            <img alt="PlaceImage" class="placeImage" data-bind="attr: {src: imgSrc}">
-            <p class="venueCategory" data-bind="text: category">
-              <span class="venueRating" data-bind="text: rating"> </span>
-            </p>
-            <p class="venueAddress" data-bind="text: address"></p>
-            <p class="venuePhone" data-bind="text: phone"></p>
+       <li class="listItem" data-bind="click: $root.focusMarker">
+            <div class="container">
+              <div class="item">
+                <h4 class="venueName" data-bind="text: name"></h4>  
+                <img class="placeImage" alt="PlaceImage" data-bind="attr: {src: imgSrc}">
+              </div>
+              <div class="item">
+              <p class="venueCategory" data-bind="text: category">
+                 <em class="rating" data-bind="text: rating"> </em>
+              </p>
+              <p class="venueAddress" data-bind="text: address"></p>
+              <p class="venuePhone" data-bind="text: phone"></p>
+              </div>
+            </div>            
           <hr>
           </li>
         </ul>

@@ -29,7 +29,6 @@ var mapViewModel = function() {
     self.neighborhood = ko.observable('');
     self.message = ko.observable('Set neighborhood location');
     self.nearByPlaces = ko.observableArray([]); // nearby places based on the neighborhood location
-    self.listDisplay = ko.observable(false);// placeList visibility flag
     // create the infoWindow to be used for the marker is clicked to open
     if (typeof google !== "undefined") {
         var infoWindow = new google.maps.InfoWindow({
@@ -44,12 +43,14 @@ var mapViewModel = function() {
             self.neighborhood('');
         }
     });
-    // update the neighborhood
-    // self.listInitial = ko.computed(function() {
-    //     if (self.neighborhood() === '') {
-  		// 	listDisplay() = true;
-    //     }
-    // });
+    // check the placeList visibility
+    self.listInitial = ko.computed(function() {
+        if (self.neighborhood() === '') {
+  			$(".places").css({
+  				visibility: 'hidden',
+  			});
+        } 
+    });
     // initial the map object
     initMap();
 
@@ -166,6 +167,9 @@ var mapViewModel = function() {
             } else {
                 // for selected place, display the icon, name and location
                 // update the information when the marker is clicked
+                $(".places").css({
+  				visibility: 'visible',
+  				});
                 createMarkersForNeighborhood(place);
                 getNeiborhoodInformation(place);
             }
@@ -269,7 +273,7 @@ var mapViewModel = function() {
             venueURL = 'Not Available Website';
         }
         // venue info window HTML element content
-        var basicInfo = '<div class="venueInfo"><p class = venueName><img class = foursquareLogo src = "img/foursquare.png" alt = "logo" >' + name + ' ' + '<em id = "rating">' + rating + '</em></p><p class="venueCategory">' + category + '</p><p class="venueAddress">' + address + '</p>';
+        var basicInfo = '<div class="venueInfo"><p class = venueName><img class = foursquareLogo src = "img/foursquare.png" alt = "logo" >' + name + ' ' + '<em class = "rating">' + rating + '</em></p><p class="venueCategory">' + category + '</p><p class="venueAddress">' + address + '</p>';
         var contactInfo = '<p class = venuePhone>' + phone + '</p><p class = venueURL><a href = ' + venueURL + ' target="_blank">' + venueURL + '</a></p><div class = snapshot><img src = ' + imgSrc + '></div></div>';
         var venueContent = basicInfo + contactInfo;
         google.maps.event.addListener(marker, 'click', function() {
