@@ -3,10 +3,10 @@ var venueMarkers = function(item) {
     this.name = ko.observable(item.venue.name);
     this.location = ko.observable(item.venue.location);
     this.position = ko.computed(function() {
-    	var lat = this.location().lat;
+        var lat = this.location().lat;
         var lng = this.location().lng;
         return new google.maps.LatLng(lat, lng);
-  	},this);
+    }, this);
     this.category = ko.observable(item.venue.categories[0].name);
     this.address = ko.observable(item.venue.location.formattedAddress);
     this.phone = ko.observable(item.venue.contact.formattedPhone);
@@ -29,20 +29,27 @@ var mapViewModel = function() {
     self.neighborhood = ko.observable('');
     self.message = ko.observable('Set neighborhood location');
     self.nearByPlaces = ko.observableArray([]); // nearby places based on the neighborhood location
+    self.listDisplay = ko.observable(false);// placeList visibility flag
     // create the infoWindow to be used for the marker is clicked to open
-    if (typeof google != "undefined") {
+    if (typeof google !== "undefined") {
         var infoWindow = new google.maps.InfoWindow({
             maxWidth: 300
         });
     }
     // update the neighborhood
-	  self.computedNeighborhood = ko.computed(function() {
-	    if (self.neighborhood() != '') {
-	      removeNeighborhoodMarker();
-          removeMarker();
-	      self.neighborhood('');
-	    }
-	  });
+    self.neighborhoodChange = ko.computed(function() {
+        if (self.neighborhood() !== '') {
+            removeNeighborhoodMarker();
+            removeMarker();
+            self.neighborhood('');
+        }
+    });
+    // update the neighborhood
+    // self.listInitial = ko.computed(function() {
+    //     if (self.neighborhood() === '') {
+  		// 	listDisplay() = true;
+    //     }
+    // });
     // initial the map object
     initMap();
 
@@ -139,7 +146,6 @@ var mapViewModel = function() {
         map = new google.maps.Map(document.getElementById("map"), {
             center: defaultAddress,
             zoom: 13,
-            animation: google.maps.Animation.DROP,
             mapTypeControl: false,
             disableDefaultUI: true,
             styles: styles
@@ -182,6 +188,7 @@ var mapViewModel = function() {
             map: map,
             id: place.place_id,
             position: place.geometry.location,
+            animation: google.maps.Animation.DROP,
             title: place.name,
             icon: image
         });
@@ -236,7 +243,7 @@ var mapViewModel = function() {
         var imgSrc = venue.imgSrc();
         var rating = venue.rating();
         var venueURL = venue.url();
-      	// customize the icon image 
+        // customize the icon image 
         var image = {
             url: 'img/coffee.png',
             // This marker is 32 pixels wide by 32 pixels high.
@@ -250,6 +257,7 @@ var mapViewModel = function() {
         var marker = new google.maps.Marker({
             map: map,
             position: position,
+            animation: google.maps.Animation.DROP,
             title: name,
             icon: image
         });
@@ -269,42 +277,42 @@ var mapViewModel = function() {
             infoWindow.open(map, this);
         });
     }
-   	 // remove neighborhood marker from the map
-	  function removeNeighborhoodMarker() {
-	    for (var i in neighborhoodMarker) {
-	      neighborhoodMarker[i].setMap(null);
-	      neighborhoodMarker[i] = null;
-	    }
-	    while (neighborhoodMarker.length > 0) {
-	      neighborhoodMarker.pop();
-	    }
-	  }
+    // remove neighborhood marker from the map
+    function removeNeighborhoodMarker() {
+        for (var i in neighborhoodMarker) {
+            neighborhoodMarker[i].setMap(null);
+            neighborhoodMarker[i] = null;
+        }
+        while (neighborhoodMarker.length > 0) {
+            neighborhoodMarker.pop();
+        }
+    }
     // remove the markers when the new neighborhood loaction is set
-    function removeMarker(){
-    	for (place in markers) {
-    		markers[place].setMap(null);
-    		markers[place] = null;
-     	}
-     	while (markers.length > 0) {
-			markers.pop();
-    		self.nearByPlaces().pop();
-		}
+    function removeMarker() {
+        for (place in markers) {
+            markers[place].setMap(null);
+            markers[place] = null;
+        }
+        while (markers.length > 0) {
+            markers.pop();
+            self.nearByPlaces().pop();
+        }
     }
 
-    	/**
-	 * when the itme on the display list is clicked
-	 * the correspoding marker if the item name matched 
-	 * with the marker's titleon the map will be focused and opend 
-	 */
-	self.focusMarker = function(item) {
-		var vName = item.name();
-		for (var i = 0; i < markers.length; i++) {
-			if (markers[i].title === vName) {
-				google.maps.event.trigger(markers[i], 'click');
-				map.panTo(markers[i].position);
-			}
-		}
-	}
+    /**
+     * when the itme on the display list is clicked
+     * the correspoding marker if the item name matched 
+     * with the marker's titleon the map will be focused and opend 
+     */
+    self.focusMarker = function(item) {
+        var vName = item.name();
+        for (var i = 0; i < markers.length; i++) {
+            if (markers[i].title === vName) {
+                google.maps.event.trigger(markers[i], 'click');
+                map.panTo(markers[i].position);
+            }
+        }
+    }
 };
 /*
 when document is ready
