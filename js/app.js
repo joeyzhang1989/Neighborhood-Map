@@ -2,6 +2,11 @@
 var venueMarkers = function(item) {
     this.name = ko.observable(item.venue.name);
     this.location = ko.observable(item.venue.location);
+    this.position = ko.computed(function() {
+    	var lat = this.location().lat;
+        var lng = this.location().lng;
+        return new google.maps.LatLng(lat, lng);
+  	},this);
     this.category = ko.observable(item.venue.categories[0].name);
     this.address = ko.observable(item.venue.location.formattedAddress);
     this.phone = ko.observable(item.venue.contact.formattedPhone);
@@ -14,6 +19,7 @@ var venueMarkers = function(item) {
 var mapViewModel = function() {
     var self = this;
     var foursquare;
+    var markers = [];
     var map; // declares a global map variable
     var defaultAddress = {
         lat: 45.496814,
@@ -215,27 +221,15 @@ var mapViewModel = function() {
     }
     // create the markers use the info returned by the foursquare API   
     function createVenueMarkers(venue) {
-        var lat = venue.location().lat;
-        var lng = venue.location().lng;
         var name = venue.name();
         var category = venue.category();
-        var position = new google.maps.LatLng(lat, lng);
+        var position = venue.position();
         var address = venue.address();
         var phone = venue.phone();
         var imgSrc = venue.imgSrc();
         var rating = venue.rating();
         var venueURL = venue.url();
-        if (phone === undefined) {
-            phone = 'Not Available Phone';
-        }
-        if (venueURL === undefined) {
-            venueURL = 'Not Available Website';
-        }
-        // venue info window HTML element content
-        var basicInfo = '<div class="venueInfo"><p class = venueName><img class = foursquareLogo src = "img/foursquare.png" alt = "logo" >' + name + ' ' + '<em id = "rating">' + rating + '</em></p><p class="venueCategory">' + category + '</p><p class="venueAddress">' + address + '</p>';
-        var contactInfo = '<p class = venuePhone>' + phone + '</p><p class = venueURL><a href = ' + venueURL + ' target="_blank">' + venueURL + '</a></p><div class = snapshot><img src = ' + imgSrc + '></div></div>';
-        var venueContent = basicInfo + contactInfo;
-        // customize the icon image 
+      	// customize the icon image 
         var image = {
             url: 'img/coffee.png',
             // This marker is 32 pixels wide by 32 pixels high.
@@ -252,6 +246,17 @@ var mapViewModel = function() {
             title: name,
             icon: image
         });
+        markers.push(marker);
+        if (phone === undefined) {
+            phone = 'Not Available Phone';
+        }
+        if (venueURL === undefined) {
+            venueURL = 'Not Available Website';
+        }
+        // venue info window HTML element content
+        var basicInfo = '<div class="venueInfo"><p class = venueName><img class = foursquareLogo src = "img/foursquare.png" alt = "logo" >' + name + ' ' + '<em id = "rating">' + rating + '</em></p><p class="venueCategory">' + category + '</p><p class="venueAddress">' + address + '</p>';
+        var contactInfo = '<p class = venuePhone>' + phone + '</p><p class = venueURL><a href = ' + venueURL + ' target="_blank">' + venueURL + '</a></p><div class = snapshot><img src = ' + imgSrc + '></div></div>';
+        var venueContent = basicInfo + contactInfo;
         google.maps.event.addListener(marker, 'click', function() {
             infoWindow.setContent(venueContent);
             infoWindow.open(map, this);
@@ -273,12 +278,12 @@ var mapViewModel = function() {
 	 * the correspoding marker if the item name matched 
 	 * with the marker's titleon the map will be focused and opend 
 	 */
-	self.focusMarker = function(venue) {
-		var venueName = venue.name();
-		for (var i = 0; i < Markers.length; i++) {
-			if (Markers[i].title == venueName) {
-				google.maps.event.trigger(Markers[i], 'click');
-				neighborMap.panTo(Markers[i].position);
+	self.focusMarker = function(item) {
+		var vName = item.name();
+		for (var i = 0; i < markers.length; i++) {
+			if (markers[i].title === vName) {
+				google.maps.event.trigger(markers[i], 'click');
+				map.panTo(markers[i].position);
 			}
 		}
 	}

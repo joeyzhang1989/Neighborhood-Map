@@ -20,7 +20,7 @@
      </div>
        <div class="places">
        <ul class="placeList" data-bind="foreach: nearByPlaces">
-        <li class="listItem" data-bind="click: $data.focusMarker">
+        <li class="listItem" data-bind="click: $root.focusMarker">
             <h4 class="venueName" data-bind="text: name"></h4>  
             <img alt="PlaceImage" class="placeImage" data-bind="attr: {src: imgSrc}">
             <p class="venueCategory" data-bind="text: category">
