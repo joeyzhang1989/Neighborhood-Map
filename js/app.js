@@ -26,7 +26,6 @@ var mapViewModel = function() {
         lng: -73.58248
     };
     var neighborhoodMarker = []; // create a blank array to store the makers
-    var placeMarkers = []; // create placemarkers array to use in multiple functions to have control over the number of places that show.
     self.neighborhood = ko.observable('');
     self.message = ko.observable('Set neighborhood location');
     self.nearByPlaces = ko.observableArray([]); // nearby places based on the neighborhood location
@@ -36,6 +35,14 @@ var mapViewModel = function() {
             maxWidth: 300
         });
     }
+    // update the neighborhood
+	  self.computedNeighborhood = ko.computed(function() {
+	    if (self.neighborhood() != '') {
+	      removeNeighborhoodMarker();
+          removeMarker();
+	      self.neighborhood('');
+	    }
+	  });
     // initial the map object
     initMap();
 
@@ -262,15 +269,26 @@ var mapViewModel = function() {
             infoWindow.open(map, this);
         });
     }
-
+   	 // remove neighborhood marker from the map
+	  function removeNeighborhoodMarker() {
+	    for (var i in neighborhoodMarker) {
+	      neighborhoodMarker[i].setMap(null);
+	      neighborhoodMarker[i] = null;
+	    }
+	    while (neighborhoodMarker.length > 0) {
+	      neighborhoodMarker.pop();
+	    }
+	  }
     // remove the markers when the new neighborhood loaction is set
     function removeMarker(){
-    	for (place in self.nearByPlaces) {
-    		self.nearByPlaces()[place].setMap(null);
-    		if (self.nearByPlaces().length > 0) {
-    			self.nearByPlaces().pop();
-    		}
+    	for (place in markers) {
+    		markers[place].setMap(null);
+    		markers[place] = null;
      	}
+     	while (markers.length > 0) {
+			markers.pop();
+    		self.nearByPlaces().pop();
+		}
     }
 
     	/**
