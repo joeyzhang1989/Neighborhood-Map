@@ -28,31 +28,50 @@ var mapViewModel = function() {
     var neighborhoodMarker = []; // create a blank array to store the makers
     self.neighborhood = ko.observable('');
     self.message = ko.observable('Set neighborhood location');
+    self.fliteredMessage = ko.observable('Fliter by the name');
+    self.keyword = ko.observable('');
     self.nearByPlaces = ko.observableArray([]); // nearby places based on the neighborhood location
+    // self.filteredList = ko.observable([]);// array of flitered places
     // create the infoWindow to be used for the marker is clicked to open
     if (typeof google !== "undefined") {
         var infoWindow = new google.maps.InfoWindow({
-            maxWidth: 300
+            maxWidth: 300,
+            pixelOffset: new google.maps.Size(0,80)
         });
     }
     // update the neighborhood
     self.neighborhoodChange = ko.computed(function() {
         if (self.neighborhood() !== '') {
+            $("#filterKeyword").css({
+                visibility: 'visible'
+            });
             removeNeighborhoodMarker();
             removeMarker();
             self.neighborhood('');
         }
     });
-    // check the placeList visibility
+    // check the placeList and  fliter input visibility
     self.listInitial = ko.computed(function() {
         if (self.neighborhood() === '') {
             $(".places").css({
-                visibility: 'hidden',
+                visibility: 'hidden'
             });
         }
     });
     // initial the map object
     initMap();
+    // 
+    google.maps.event.addListener(infoWindow,'closeclick',function(){
+         var center = map.getCenter();
+         map.setCenter(center); 
+         $('.places').css('display', 'block');
+    });
+    // center the map when the window resize
+    google.maps.event.addDomListener(window, "resize", function() {
+       var center = map.getCenter();
+       google.maps.event.trigger(map, "resize");
+       map.setCenter(center); 
+    });
     // make sure the map bounds get updated on page resize
     window.addEventListener('resize', function(e) {
         $("#map").height($(window).height());
@@ -283,6 +302,8 @@ var mapViewModel = function() {
         var venueContent = basicInfo + contactInfo;
         google.maps.event.addListener(marker, 'click', function() {
             infoWindow.setContent(venueContent);
+            map.setCenter(marker.position);
+            map.panBy(0, -60);
             infoWindow.open(map, this);
         });
     }
@@ -317,10 +338,48 @@ var mapViewModel = function() {
         for (var i = 0; i < markers.length; i++) {
             if (markers[i].title === vName) {
                 google.maps.event.trigger(markers[i], 'click');
-                map.panTo(markers[i].position);
+                $('.places').css('display', 'none');
             }
         }
     }
+    /**
+     * incurred when the user click the find button 
+     * to search for the matched venue results 
+     */
+     self.filterKeyword = function() {
+        var searchWord = self.keyword().toLowerCase();
+        var currentArray = markers;
+        var foundFlag = false;
+        if(!searchWord) {
+          window.alert("No place is founded, please validate your input");
+          return;
+        } 
+        else {
+          //Loop through the grouponDeals array and see if the search keyword matches 
+          //with any venue name or dealTags in the list, if so push that object to the filteredList 
+          //array and place the marker on the map.
+          for(marker in markers) {
+            if(markers[marker].title.toLowerCase().indexOf(searchWord) !== -1) {
+               currentMarker = markers[marker]
+               google.maps.event.trigger(markers[marker], 'click');
+               foundFlag = true;
+            } else {
+                if (markers[marker].title.toLowerCase().indexOf(searchWord) === -1) {
+                    markers[marker].setMap(null);
+                }
+                if (foundFlag === true) {
+                    self.fliteredMessage("Fliter by the name");
+                    $('.places').css('display', 'none');
+                }  
+                if (foundFlag === false) {
+                    self.keyword('');
+                    self.fliteredMessage("Re-enter the validated name");
+                    $('.places').css('display', 'blocks');
+                }
+              }
+            }
+        }
+     }
 };
 /*
 when document is ready

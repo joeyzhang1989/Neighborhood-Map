@@ -1,47 +1,29 @@
-html, body {
-    font-size: 14px;
-}
-
 #map {
-    height: 50%;
+    height: 100%;
 }
 
 #search {
-    width: 100%;
+    width: 70%;
     margin: 0;
     top: 0px;
 }
 
-#search-area {
-    width: 100%;
+#filterKeyword {
+    width: 70%;
+    margin: 0;
+    top: 40px;
+}
+
+.input-are {
+    width: 80%;
     height: 100%;
 }
 
 .places {
-    width: 100%;
-    max-width: 800px;
-    height: 100%;
-    margin: auto;
-    position: relative;
+    width: 50%;
 }
 
-.placeList {
-    overflow: hidden;
-}
-
-.listItem {
-    float: left;
-    width: 33.333%;
-}
-
-.venueTitle {
-    width: 100%;
-}
-
-.venueDetail {
-    display: none;
-}
-
-.placeImage {
-    max-height: 200px;
+.venueInfo {
+    width: 150px
+    height: 150px;
 }

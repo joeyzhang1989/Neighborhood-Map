@@ -17,7 +17,11 @@
 <body>
     <div id="map"></div>
     <div id="search">
-        <input data-bind="value: neighborhood,attr: {placeholder: message}" id="search-area">
+        <input data-bind="value: neighborhood,attr: {placeholder: message}" id="search-area" class="input-area">
+    </div>
+    <div id="filterKeyword">
+        <input data-bind="value: keyword,attr: {placeholder: fliteredMessage}" class="input-area">
+        <button data-bind="click: $root.filterKeyword" class="matchedPlace">Find</button>
     </div>
     <div class="places">
         <ul class="placeList" data-bind="foreach: nearByPlaces">

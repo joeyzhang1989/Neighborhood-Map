@@ -19,19 +19,36 @@ html, body {
     display: -ms-flexbox;
     display: flex;
     border-radius: 10px;
-    width: 60%;
+    width: 50%;
     height: 40px;
     position: absolute;
-    margin-left: 20px;
+    margin-left: 10px;
     top: 20px;
 }
 
-#search-area {
+.input-area {
     display: block;
-    width: 40%;
+    width: 70%;
     margin: 0;
     padding: 0 0 0 10px;
     border-color: #000000;
+}
+
+#filterKeyword {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    border-radius: 10px;
+    width:50%;
+    height: 40px;
+    position: absolute;
+    margin-left: 10px;
+    top: 60px;
+    visibility: hidden;
+}
+
+.matchedPlace {
+    width: 20%;
 }
 
 .snapshot img {
@@ -47,7 +64,7 @@ html, body {
     border-radius: 3px;
     z-index: 102;
     position: fixed;
-    top: 0px;
+    top: 100px;
     right: 0px;
     font-size: 12px;
     background-color: darkgray;
@@ -126,4 +143,8 @@ html, body {
 .rating {
     color: #ea073c;
     display: inline;
+}
+
+.gm-style-iw{
+    max-height: 300px;
 }
