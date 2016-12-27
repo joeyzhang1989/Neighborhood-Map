@@ -12,7 +12,7 @@ var venueMarkers = function(item) {
     this.phone = ko.observable(item.venue.contact.formattedPhone);
     this.rating = ko.observable(item.venue.rating);
     this.url = ko.observable(item.venue.url);
-    this.imgSrc = ko.observable('https://irs0.4sqi.net/img/general/300x200' + item.venue.photos.groups[0].items[0].suffix);
+    this.imgSrc = ko.observable('https://irs0.4sqi.net/img/general/800x600'+ item.venue.photos.groups[0].items[0].suffix);
 };
 
 
@@ -53,7 +53,11 @@ var mapViewModel = function() {
     });
     // initial the map object
     initMap();
-
+	// make sure the map bounds get updated on page resize
+	  window.addEventListener('resize', function(e) {
+	    $("#map").height($(window).height());
+	    $("#map").width($(window).width());
+	  });
     function initMap() {
         /*
         This is google maps customized styles "Subtle Grayscale " 
@@ -151,6 +155,7 @@ var mapViewModel = function() {
             disableDefaultUI: true,
             styles: styles
         });
+        var bounds = new google.maps.LatLngBounds();
         // find search box DOM element
         var searchBox = document.getElementById('search-area');
         //use the google maps Autocomplete
@@ -177,7 +182,6 @@ var mapViewModel = function() {
     }
     // set the locaion, titie and icon for the neighborhood marker
     function createMarkersForNeighborhood(place) {
-        var bounds = new google.maps.LatLngBounds();
         // customize the icon image 
         var image = {
             url: 'img/neighborhood.png',
@@ -225,6 +229,7 @@ var mapViewModel = function() {
             // loop the array nearByPlaces to set markers for place returned by foursquare
             for (var i = 0, l = self.nearByPlaces().length; i < l; i++) {
                 createVenueMarkers(self.nearByPlaces()[i]);
+            	updateCaroursel(self.nearByPlaces()[i]);
             }
             // fit the map by suggested bounds
             if (bounds !== undefined) {
@@ -303,6 +308,18 @@ var mapViewModel = function() {
         }
     }
 
+     /**
+     * change the page layout and the page elements 
+     * for the responsiveness on mobile device
+     */
+    function updateCaroursel (venue) {
+    
+           		var imgSrc = venue.imgSrc();
+		 		var slider = $('.flickity-slider');
+		 		var imageCell = '<img src = ' + imgSrc + ' alt = "Place snapshot">';
+		 		slider.append(imageCell);
+           
+    }
     /**
      * when the itme on the display list is clicked
      * the correspoding marker if the item name matched 

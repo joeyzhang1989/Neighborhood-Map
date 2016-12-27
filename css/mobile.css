@@ -1,0 +1,46 @@
+html, body {
+    font-size: 14px;
+}
+
+#map {
+    height: 50%;
+}
+
+#search {
+    width: 100%;
+    margin: 0;
+    top: 0px;
+}
+
+#search-area {
+    width: 100%;
+    height: 100%;
+}
+
+.places {
+    width:100%;
+    max-width: 800px; 
+    height: 100%;
+    margin: auto;
+    position: relative;
+}
+
+.placeList {
+    overflow: hidden;
+}
+
+.listItem {
+  float: left;
+  width: 33.333%;
+}
+.venueTitle {
+  width: 100%;
+}
+
+.venueDetail {
+  display: none;
+}
+
+.placeImage {
+  max-height: 200px;
+}
