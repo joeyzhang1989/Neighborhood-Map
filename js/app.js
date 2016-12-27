@@ -12,7 +12,7 @@ var venueMarkers = function(item) {
     this.phone = ko.observable(item.venue.contact.formattedPhone);
     this.rating = ko.observable(item.venue.rating);
     this.url = ko.observable(item.venue.url);
-    this.imgSrc = ko.observable('https://irs0.4sqi.net/img/general/800x600'+ item.venue.photos.groups[0].items[0].suffix);
+    this.imgSrc = ko.observable('https://irs0.4sqi.net/img/general/800x600' + item.venue.photos.groups[0].items[0].suffix);
 };
 
 
@@ -46,18 +46,19 @@ var mapViewModel = function() {
     // check the placeList visibility
     self.listInitial = ko.computed(function() {
         if (self.neighborhood() === '') {
-  			$(".places").css({
-  				visibility: 'hidden',
-  			});
-        } 
+            $(".places").css({
+                visibility: 'hidden',
+            });
+        }
     });
     // initial the map object
     initMap();
-	// make sure the map bounds get updated on page resize
-	  window.addEventListener('resize', function(e) {
-	    $("#map").height($(window).height());
-	    $("#map").width($(window).width());
-	  });
+    // make sure the map bounds get updated on page resize
+    window.addEventListener('resize', function(e) {
+        $("#map").height($(window).height());
+        $("#map").width($(window).width());
+    });
+
     function initMap() {
         /*
         This is google maps customized styles "Subtle Grayscale " 
@@ -173,8 +174,8 @@ var mapViewModel = function() {
                 // for selected place, display the icon, name and location
                 // update the information when the marker is clicked
                 $(".places").css({
-  				visibility: 'visible',
-  				});
+                    visibility: 'visible',
+                });
                 createMarkersForNeighborhood(place);
                 getNeiborhoodInformation(place);
             }
@@ -229,7 +230,6 @@ var mapViewModel = function() {
             // loop the array nearByPlaces to set markers for place returned by foursquare
             for (var i = 0, l = self.nearByPlaces().length; i < l; i++) {
                 createVenueMarkers(self.nearByPlaces()[i]);
-            	updateCaroursel(self.nearByPlaces()[i]);
             }
             // fit the map by suggested bounds
             if (bounds !== undefined) {
@@ -306,19 +306,6 @@ var mapViewModel = function() {
             markers.pop();
             self.nearByPlaces().pop();
         }
-    }
-
-     /**
-     * change the page layout and the page elements 
-     * for the responsiveness on mobile device
-     */
-    function updateCaroursel (venue) {
-    
-           		var imgSrc = venue.imgSrc();
-		 		var slider = $('.flickity-slider');
-		 		var imageCell = '<img src = ' + imgSrc + ' alt = "Place snapshot">';
-		 		slider.append(imageCell);
-           
     }
     /**
      * when the itme on the display list is clicked
