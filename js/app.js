@@ -25,9 +25,10 @@ var mapViewModel = function() {
         lat: 45.496814,
         lng: -73.58248
     };
+    var defaultNeighborhood = '3455 Chemin de la Côte-des-Neiges, Montréal, QC H3H, Canada';
     var neighborhoodMarker = []; // create a blank array to store the makers
     self.neighborhood = ko.observable('');
-    self.message = ko.observable('Set neighborhood location');
+    self.message = ko.observable('Set new neighborhood location');
     self.fliteredMessage = ko.observable('Fliter by the name');
     self.keyword = ko.observable('');
     self.nearByPlaces = ko.observableArray([]); // nearby places based on the neighborhood location
@@ -36,41 +37,31 @@ var mapViewModel = function() {
     if (typeof google !== "undefined") {
         var infoWindow = new google.maps.InfoWindow({
             maxWidth: 300,
-            pixelOffset: new google.maps.Size(0,80)
+            pixelOffset: new google.maps.Size(0, 80)
         });
     }
     // update the neighborhood
     self.neighborhoodChange = ko.computed(function() {
         if (self.neighborhood() !== '') {
-            $("#filterKeyword").css({
-                visibility: 'visible'
-            });
             removeNeighborhoodMarker();
             removeMarker();
             self.neighborhood('');
         }
     });
-    // check the placeList and  fliter input visibility
-    self.listInitial = ko.computed(function() {
-        if (self.neighborhood() === '') {
-            $(".places").css({
-                visibility: 'hidden'
-            });
-        }
-    });
     // initial the map object
     initMap();
-    // 
-    google.maps.event.addListener(infoWindow,'closeclick',function(){
-         var center = map.getCenter();
-         map.setCenter(center); 
-         $('.places').css('display', 'block');
+
+    // show the placeList when the infowindow is closed
+    google.maps.event.addListener(infoWindow, 'closeclick', function() {
+        var center = map.getCenter();
+        map.setCenter(center);
+        $('.places').css('display', 'block');
     });
     // center the map when the window resize
     google.maps.event.addDomListener(window, "resize", function() {
-       var center = map.getCenter();
-       google.maps.event.trigger(map, "resize");
-       map.setCenter(center); 
+        var center = map.getCenter();
+        google.maps.event.trigger(map, "resize");
+        map.setCenter(center);
     });
     // make sure the map bounds get updated on page resize
     window.addEventListener('resize', function(e) {
@@ -175,6 +166,32 @@ var mapViewModel = function() {
             disableDefaultUI: true,
             styles: styles
         });
+
+        function mapErrorhandling() {
+            setTimeout(function() {
+                $('#map').html('We are unable Google Maps. Please refresh your browser and try again.');
+            }, 5000);
+        }
+        setDefaultNeighborhood(defaultNeighborhood);
+        // // initial the map using the default location
+        function setDefaultNeighborhood(defaultNeighborhood) {
+            var request = {
+                query: defaultNeighborhood
+            };
+            service = new google.maps.places.PlacesService(map);
+            service.textSearch(request, neighborhoodCallback);
+        }
+
+        // callback method 
+        function neighborhoodCallback(results, status) {
+            if (status == google.maps.places.PlacesServiceStatus.OK) {
+                createMarkersForNeighborhood(results[0]);
+                getNeiborhoodInformation(results[0]);
+            } else {
+                console.log('failed to load the defaultNeighborhood');
+            }
+        }
+
         var bounds = new google.maps.LatLngBounds();
         // find search box DOM element
         var searchBox = document.getElementById('search-area');
@@ -334,58 +351,57 @@ var mapViewModel = function() {
      * with the marker's titleon the map will be focused and opend 
      */
     self.focusMarker = function(item) {
-        var vName = item.name();
-        for (var i = 0; i < markers.length; i++) {
-            if (markers[i].title === vName) {
-                google.maps.event.trigger(markers[i], 'click');
-                $('.places').css('display', 'none');
+            var vName = item.name();
+            for (var i = 0; i < markers.length; i++) {
+                if (markers[i].title === vName) {
+                    google.maps.event.trigger(markers[i], 'click');
+                    $('.places').css('display', 'none');
+                }
             }
         }
-    }
-    /**
-     * incurred when the user click the find button 
-     * to search for the matched venue results 
-     */
-     self.filterKeyword = function() {
+        /**
+         * incurred when the user click the find button 
+         * to search for the matched venue results 
+         */
+    self.filterKeyword = function() {
         var searchWord = self.keyword().toLowerCase();
         var currentArray = markers;
         var foundFlag = false;
-        if(!searchWord) {
-          window.alert("No place is founded, please validate your input");
-          return;
-        } 
-        else {
-          //Loop through the grouponDeals array and see if the search keyword matches 
-          //with any venue name or dealTags in the list, if so push that object to the filteredList 
-          //array and place the marker on the map.
-          for(marker in markers) {
-            if(markers[marker].title.toLowerCase().indexOf(searchWord) !== -1) {
-               currentMarker = markers[marker]
-               google.maps.event.trigger(markers[marker], 'click');
-               foundFlag = true;
-            } else {
-                if (markers[marker].title.toLowerCase().indexOf(searchWord) === -1) {
-                    markers[marker].setMap(null);
+        if (!searchWord) {
+            window.alert("No place is founded, please validate your input");
+            return;
+        } else {
+            //Loop through the grouponDeals array and see if the search keyword matches 
+            //with any venue name or dealTags in the list, if so push that object to the filteredList 
+            //array and place the marker on the map.
+            for (marker in markers) {
+                if (markers[marker].title.toLowerCase().indexOf(searchWord) !== -1) {
+                    currentMarker = markers[marker]
+                    google.maps.event.trigger(markers[marker], 'click');
+                    foundFlag = true;
+                } else {
+                    if (markers[marker].title.toLowerCase().indexOf(searchWord) === -1) {
+                        markers[marker].setMap(null);
+                    }
+                    if (foundFlag === true) {
+                        self.fliteredMessage("Fliter by the name");
+                        $('.places').css('display', 'none');
+                    }
+                    if (foundFlag === false) {
+                        self.keyword('');
+                        self.fliteredMessage("Re-enter the validated name");
+                        $('.places').css('display', 'blocks');
+                    }
                 }
-                if (foundFlag === true) {
-                    self.fliteredMessage("Fliter by the name");
-                    $('.places').css('display', 'none');
-                }  
-                if (foundFlag === false) {
-                    self.keyword('');
-                    self.fliteredMessage("Re-enter the validated name");
-                    $('.places').css('display', 'blocks');
-                }
-              }
             }
         }
-     }
+    }
 };
 /*
-when document is ready
-use IIFE to invoke the map initial funtion 
-and knockout binding to the viewModel
-*/
+ * when document is ready
+ * use IIFE invoke the map initial funtion 
+ * and knockout binding to the viewModel
+ */
 $(function() {
     ko.applyBindings(new mapViewModel());
 });

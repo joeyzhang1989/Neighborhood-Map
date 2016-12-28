@@ -44,7 +44,6 @@ html, body {
     position: absolute;
     margin-left: 10px;
     top: 60px;
-    visibility: hidden;
 }
 
 .matchedPlace {
