@@ -64,7 +64,7 @@ var mapViewModel = function() {
     // initial the map object
     initMap();
 
-    // show the placeList when the infowindow is closed
+    // center the map and remove the animation when the infowindow is closed
     google.maps.event.addListener(infoWindow, 'closeclick', function() {
         var center = map.getCenter();
         map.setCenter(center);
@@ -328,6 +328,12 @@ var mapViewModel = function() {
         var contactInfo = '<p class = venuePhone>' + phone + '</p><p class = venueURL><a href = ' + venueURL + ' target="_blank">' + venueURL + '</a></p><div class = snapshot><img src = ' + imgSrc + '></div></div>';
         var venueContent = basicInfo + contactInfo;
         google.maps.event.addListener(marker, 'click', function() {
+            // when the marker is clicked add bounce animation
+            if (marker.getAnimation() !== null) {
+              marker.setAnimation(null);
+            } else {
+              marker.setAnimation(google.maps.Animation.BOUNCE);
+            }
             infoWindow.setContent(venueContent);
             map.setCenter(marker.position);
             map.panBy(0, -250);
