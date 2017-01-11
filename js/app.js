@@ -15,6 +15,9 @@ var venueMarkers = function(item) {
     this.imgSrc = ko.observable('https://irs0.4sqi.net/img/general/800x600' + item.venue.photos.groups[0].items[0].suffix);
 };
 
+function mapErrorhandling() {
+    $('body').html('We are unable Google Maps. Please refresh your browser and try again.');
+}
 
 var mapViewModel = function() {
     var self = this;
@@ -167,13 +170,9 @@ var mapViewModel = function() {
             styles: styles
         });
 
-        function mapErrorhandling() {
-            setTimeout(function() {
-                $('#map').html('We are unable Google Maps. Please refresh your browser and try again.');
-            }, 5000);
-        }
+
         setDefaultNeighborhood(defaultNeighborhood);
-        // // initial the map using the default location
+        // initial the map using the default location
         function setDefaultNeighborhood(defaultNeighborhood) {
             var request = {
                 query: defaultNeighborhood
@@ -188,6 +187,7 @@ var mapViewModel = function() {
                 createMarkersForNeighborhood(results[0]);
                 getNeiborhoodInformation(results[0]);
             } else {
+                $('.places').html('failed to load the defaultNeighborhood')
                 console.log('failed to load the defaultNeighborhood');
             }
         }
@@ -195,7 +195,7 @@ var mapViewModel = function() {
         var bounds = new google.maps.LatLngBounds();
         // find search box DOM element
         var searchBox = document.getElementById('search-area');
-        //use the google maps Autocomplete
+        // use the google maps Autocomplete
         var autocomplete = new google.maps.places.Autocomplete(searchBox);
         autocomplete.bindTo('bounds', map);
         // Listen for the event fired when the user selects a prediction from list
@@ -204,7 +204,7 @@ var mapViewModel = function() {
             if (!place.geometry) {
                 // User entered the name of a Place that was not suggested and
                 // pressed the Enter key, or the Place Details request failed.
-                window.alert("No details available for input: '" + place.name + "'");
+                window.alert('No details available for input:' + place.name);
                 self.message('re-set your location');
             } else {
                 // for selected place, display the icon, name and location
@@ -275,6 +275,7 @@ var mapViewModel = function() {
                 map.fitBounds(mapBounds);
             }
         }).fail(function(e) {
+            $('.places').html('failed to load foursquare json')
             console.log('failed to load foursquare json');
         });
     }
@@ -336,7 +337,7 @@ var mapViewModel = function() {
     }
     // remove the markers when the new neighborhood loaction is set
     function removeMarker() {
-        for (place in markers) {
+        for (var place in markers) {
             markers[place].setMap(null);
             markers[place] = null;
         }
@@ -351,32 +352,32 @@ var mapViewModel = function() {
      * with the marker's titleon the map will be focused and opend 
      */
     self.focusMarker = function(item) {
-            var vName = item.name();
-            for (var i = 0; i < markers.length; i++) {
-                if (markers[i].title === vName) {
-                    google.maps.event.trigger(markers[i], 'click');
-                    $('.places').css('display', 'none');
-                }
+        var vName = item.name();
+        for (var i = 0; i < markers.length; i++) {
+            if (markers[i].title === vName) {
+                google.maps.event.trigger(markers[i], 'click');
+                $('.places').css('display', 'none');
             }
         }
-        /**
-         * incurred when the user click the find button 
-         * to search for the matched venue results 
-         */
+    };
+    /**
+     * incurred when the user click the find button 
+     * to search for the matched venue results 
+     */
     self.filterKeyword = function() {
         var searchWord = self.keyword().toLowerCase();
         var currentArray = markers;
         var foundFlag = false;
         if (!searchWord) {
-            window.alert("No place is founded, please validate your input");
+            window.alert('No place is founded, please validate your input');
             return;
         } else {
             //Loop through the grouponDeals array and see if the search keyword matches 
             //with any venue name or dealTags in the list, if so push that object to the filteredList 
             //array and place the marker on the map.
-            for (marker in markers) {
+            for (var marker in markers) {
                 if (markers[marker].title.toLowerCase().indexOf(searchWord) !== -1) {
-                    currentMarker = markers[marker]
+                    currentMarker = markers[marker];
                     google.maps.event.trigger(markers[marker], 'click');
                     foundFlag = true;
                 } else {
@@ -384,18 +385,18 @@ var mapViewModel = function() {
                         markers[marker].setMap(null);
                     }
                     if (foundFlag === true) {
-                        self.fliteredMessage("Fliter by the name");
+                        self.fliteredMessage('Fliter by the name');
                         $('.places').css('display', 'none');
                     }
                     if (foundFlag === false) {
                         self.keyword('');
-                        self.fliteredMessage("Re-enter the validated name");
+                        self.fliteredMessage('Re-enter the validated name');
                         $('.places').css('display', 'blocks');
                     }
                 }
             }
         }
-    }
+    };
 };
 /*
  * when document is ready
