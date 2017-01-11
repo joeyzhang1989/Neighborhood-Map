@@ -35,14 +35,24 @@ var mapViewModel = function() {
     self.fliteredMessage = ko.observable('Fliter by the name');
     self.keyword = ko.observable('');
     self.nearByPlaces = ko.observableArray([]); // nearby places based on the neighborhood location
+    var bounds = new google.maps.LatLngBounds();
+    self.toggleSymbol = ko.observable('show list');  //holds value for list togglings
     // self.filteredList = ko.observable([]);// array of flitered places
     // create the infoWindow to be used for the marker is clicked to open
     if (typeof google !== "undefined") {
         var infoWindow = new google.maps.InfoWindow({
             maxWidth: 300,
-            pixelOffset: new google.maps.Size(0, 80)
+            pixelOffset: new google.maps.Size(0, 0)
         });
     }
+    //toggles the list view
+    this.listToggle = function() {
+        if(self.toggleSymbol() === 'hide list') {
+          self.toggleSymbol('show list');
+        } else {
+          self.toggleSymbol('hide list');
+        }
+    };
     // update the neighborhood
     self.neighborhoodChange = ko.computed(function() {
         if (self.neighborhood() !== '') {
@@ -58,7 +68,6 @@ var mapViewModel = function() {
     google.maps.event.addListener(infoWindow, 'closeclick', function() {
         var center = map.getCenter();
         map.setCenter(center);
-        $('.places').css('display', 'block');
     });
     // center the map when the window resize
     google.maps.event.addDomListener(window, "resize", function() {
@@ -164,7 +173,7 @@ var mapViewModel = function() {
         // bind the map with google maps and initial the map
         map = new google.maps.Map(document.getElementById("map"), {
             center: defaultAddress,
-            zoom: 13,
+            zoom: 15,
             mapTypeControl: false,
             disableDefaultUI: true,
             styles: styles
@@ -192,7 +201,7 @@ var mapViewModel = function() {
             }
         }
 
-        var bounds = new google.maps.LatLngBounds();
+        
         // find search box DOM element
         var searchBox = document.getElementById('search-area');
         // use the google maps Autocomplete
@@ -209,9 +218,6 @@ var mapViewModel = function() {
             } else {
                 // for selected place, display the icon, name and location
                 // update the information when the marker is clicked
-                $(".places").css({
-                    visibility: 'visible',
-                });
                 createMarkersForNeighborhood(place);
                 getNeiborhoodInformation(place);
             }
@@ -272,7 +278,10 @@ var mapViewModel = function() {
                 mapBounds = new google.maps.LatLngBounds(
                     new google.maps.LatLng(bounds.sw.lat, bounds.sw.lng),
                     new google.maps.LatLng(bounds.ne.lat, bounds.ne.lng));
-                map.fitBounds(mapBounds);
+                     //map display responsively when the broswer window resized
+                    // google.maps.event.addDomListener(window, 'resize', function() {
+                      map.fitBounds(mapBounds); // `mapBounds` is a `LatLngBounds` object
+                    // });
             }
         }).fail(function(e) {
             $('.places').html('failed to load foursquare json')
@@ -321,7 +330,7 @@ var mapViewModel = function() {
         google.maps.event.addListener(marker, 'click', function() {
             infoWindow.setContent(venueContent);
             map.setCenter(marker.position);
-            map.panBy(0, -60);
+            map.panBy(0, -250);
             infoWindow.open(map, this);
         });
     }
@@ -356,7 +365,6 @@ var mapViewModel = function() {
         for (var i = 0; i < markers.length; i++) {
             if (markers[i].title === vName) {
                 google.maps.event.trigger(markers[i], 'click');
-                $('.places').css('display', 'none');
             }
         }
     };
@@ -372,9 +380,9 @@ var mapViewModel = function() {
             window.alert('No place is founded, please validate your input');
             return;
         } else {
-            //Loop through the grouponDeals array and see if the search keyword matches 
-            //with any venue name or dealTags in the list, if so push that object to the filteredList 
-            //array and place the marker on the map.
+            //Loop through the markers array and see if the search keyword matches 
+            //with any venue name, if so push that object to the filteredList 
+            //array and place the marker on the map
             for (var marker in markers) {
                 if (markers[marker].title.toLowerCase().indexOf(searchWord) !== -1) {
                     currentMarker = markers[marker];
@@ -384,9 +392,8 @@ var mapViewModel = function() {
                     if (markers[marker].title.toLowerCase().indexOf(searchWord) === -1) {
                         markers[marker].setMap(null);
                     }
-                    if (foundFlag === true) {
+                    if (foundFlag) {
                         self.fliteredMessage('Fliter by the name');
-                        $('.places').css('display', 'none');
                     }
                     if (foundFlag === false) {
                         self.keyword('');

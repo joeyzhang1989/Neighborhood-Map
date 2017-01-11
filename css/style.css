@@ -46,6 +46,15 @@ html, body {
     top: 60px;
 }
 
+.toggleList {
+    min-width: 48px;
+    min-height: 48px;
+    width: 20%;
+    right: 30px;
+    top: 10px;
+    position: fixed;
+}
+
 .matchedPlace {
     width: 20%;
 }
@@ -57,13 +66,13 @@ html, body {
 
 .places {
     max-width: 300px;
-    width: 40%;
+    width: 50%;
     height: 80%;
     box-shadow: 0 2px 3px rgba(0,0,0,0.3);
     border-radius: 3px;
     z-index: 102;
     position: fixed;
-    top: 100px;
+    top: 150px;
     right: 0px;
     font-size: 12px;
     background-color: darkgray;
