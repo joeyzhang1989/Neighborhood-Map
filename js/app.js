@@ -175,7 +175,6 @@ var mapViewModel = function() {
             center: defaultAddress,
             zoom: 15,
             mapTypeControl: false,
-            disableDefaultUI: true,
             styles: styles
         });
 
@@ -328,23 +327,29 @@ var mapViewModel = function() {
         var contactInfo = '<p class = venuePhone>' + phone + '</p><p class = venueURL><a href = ' + venueURL + ' target="_blank">' + venueURL + '</a></p><div class = snapshot><img src = ' + imgSrc + '></div></div>';
         var venueContent = basicInfo + contactInfo;
         google.maps.event.addListener(marker, 'click', function() {
-            // when the marker is clicked add bounce animation
-            if (marker.getAnimation() !== null) {
-              marker.setAnimation(null);
-            } else {
-              marker.setAnimation(google.maps.Animation.BOUNCE);
-              stopAnimation(marker);
-            }
+            markerAnimated(marker);
             infoWindow.setContent(venueContent);
             map.setCenter(marker.position);
             map.panBy(0, -250);
             infoWindow.open(map, this);
         });
-        function stopAnimation(marker) {
+        
+    }
+    // when the marker is clicked add bounce animation
+    function markerAnimated(marker) {
+         if (marker.getAnimation() !== null) {
+              marker.setAnimation(null);
+            } else {
+              map.setCenter(marker.position);
+              marker.setAnimation(google.maps.Animation.BOUNCE);
+              stopAnimation(marker);
+            }
+    }
+    // set timeout for the clicked animation
+    function stopAnimation(marker) {
             setTimeout(function () {
                 marker.setAnimation(null);
             }, 3000);
-        }
     }
     // remove neighborhood marker from the map
     function removeNeighborhoodMarker() {
@@ -387,6 +392,7 @@ var mapViewModel = function() {
     self.filterKeyword = function() {
         var searchWord = self.keyword().toLowerCase();
         var foundFlag = false;
+        var currentMarker = [];
         if (!searchWord) {
             window.alert('No place is founded, please validate your input');
             return;
@@ -396,20 +402,19 @@ var mapViewModel = function() {
             //array and place the marker on the map
             for (var marker in markers) {
                 if (markers[marker].title.toLowerCase().indexOf(searchWord) !== -1) {
-                    self.filteredList.push(markers[marker]);
-                    google.maps.event.trigger(markers[marker], 'click');
+                    // self.filteredList.push(markers[marker]);
+                    markers[marker].setMap(map);
+                    markerAnimated(markers[marker]);
+                    // google.maps.event.trigger(markers[marker], 'click');
                     foundFlag = true;
                 } else {
                     if (markers[marker].title.toLowerCase().indexOf(searchWord) === -1) {
                         markers[marker].setMap(null);
+                        self.keyword('');
+                        self.fliteredMessage('Re-enter the validated name');
                     }
                     if (foundFlag) {
                         self.fliteredMessage('Fliter by the name');
-                    }
-                    if (foundFlag === false) {
-                        self.keyword('');
-                        self.fliteredMessage('Re-enter the validated name');
-                        $('.places').css('display', 'blocks');
                     }
                 }
             }
