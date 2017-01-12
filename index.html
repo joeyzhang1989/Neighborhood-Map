@@ -28,7 +28,7 @@
         <button data-bind="click: $root.clearFilter" class="clearFilter">Clear Fliter</button>
     </div>
     <div class="places" data-bind="visible: toggleSymbol() !== 'show list'">
-        <ul class="placeList" data-bind="foreach: nearByPlaces">
+        <ul class="placeList" data-bind="foreach: filteredList">
             <li class="listItem" data-bind="click: $root.focusMarker">
                 <div class="container">
                     <div class="venueTitle item">

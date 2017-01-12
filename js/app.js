@@ -37,7 +37,7 @@ var mapViewModel = function() {
     self.nearByPlaces = ko.observableArray([]); // nearby places based on the neighborhood location
     var bounds = new google.maps.LatLngBounds();
     self.toggleSymbol = ko.observable('show list');  //holds value for list togglings
-    self.filteredList = ko.observable([]);// array of flitered places
+    self.filteredList = ko.observableArray([]);// array of flitered places
     // create the infoWindow to be used for the marker is clicked to open
     if (typeof google !== "undefined") {
         var infoWindow = new google.maps.InfoWindow({
@@ -213,7 +213,7 @@ var mapViewModel = function() {
                 // User entered the name of a Place that was not suggested and
                 // pressed the Enter key, or the Place Details request failed.
                 window.alert('No details available for input:' + place.name);
-                self.message('re-set your location');
+                self.message('Re-set your location');
             } else {
                 // for selected place, display the icon, name and location
                 // update the information when the marker is clicked
@@ -268,6 +268,7 @@ var mapViewModel = function() {
             places.forEach(function(item) {
                 self.nearByPlaces.push(new venueMarkers(item));
             });
+            self.filteredList(self.nearByPlaces());
             // loop the array nearByPlaces to set markers for place returned by foursquare
             for (var i = 0, l = self.nearByPlaces().length; i < l; i++) {
                 createVenueMarkers(self.nearByPlaces()[i]);
@@ -392,24 +393,24 @@ var mapViewModel = function() {
     self.filterKeyword = function() {
         var searchWord = self.keyword().toLowerCase();
         var foundFlag = false;
-        var currentMarker = [];
         if (!searchWord) {
             window.alert('No place is founded, please validate your input');
             return;
         } else {
+            //clear the array
+            self.filteredList([]);
             //Loop through the markers array and see if the search keyword matches 
             //with any venue name, if so push that object to the filteredList 
             //array and place the marker on the map
-            for (var marker in markers) {
-                if (markers[marker].title.toLowerCase().indexOf(searchWord) !== -1) {
-                    // self.filteredList.push(markers[marker]);
-                    markers[marker].setMap(map);
-                    markerAnimated(markers[marker]);
-                    // google.maps.event.trigger(markers[marker], 'click');
+            for (var place in self.nearByPlaces()) {
+                if (self.nearByPlaces()[place].name().toLowerCase().indexOf(searchWord) !== -1) {
+                    self.filteredList.push(self.nearByPlaces()[place]);
+                    markers[place].setMap(map);
+                    markerAnimated(markers[place]);
                     foundFlag = true;
                 } else {
-                    if (markers[marker].title.toLowerCase().indexOf(searchWord) === -1) {
-                        markers[marker].setMap(null);
+                    if (self.nearByPlaces()[place].name().toLowerCase().indexOf(searchWord) === -1) {
+                        markers[place].setMap(null);
                         self.keyword('');
                         self.fliteredMessage('Re-enter the validated name');
                     }
@@ -422,7 +423,11 @@ var mapViewModel = function() {
     };
     // clear the fliterList and reset the list with the original list
     self.clearFilter = function () {
-
+        self.filteredList(self.nearByPlaces());
+        self.fliteredMessage('Fliter by the name');
+        for(var marker in markers) {
+          markers[marker].setMap(map);
+        }
     };
 };
 /*
