@@ -15,19 +15,125 @@ var venueMarkers = function(item) {
     this.imgSrc = ko.observable('https://irs0.4sqi.net/img/general/800x600' + item.venue.photos.groups[0].items[0].suffix);
 };
 
+// google map error handling method
 function mapErrorhandling() {
     $('body').html('We are unable Google Maps. Please refresh your browser and try again.');
 }
 
-var mapViewModel = function() {
-    var self = this;
-    var foursquare;
-    var markers = [];
-    var map; // declares a global map variable
+var map; // declares a global map variable
+// initial the google map
+function initMap() {
+    /*
+    This is google maps customized styles "Subtle Grayscale " 
+    obtained from the https://snazzymaps.com/style/15/subtle-grayscale,
+    attributed to the author Paulo Avila
+    */
+    var styles = [{
+        "featureType": "administrative",
+        "elementType": "all",
+        "stylers": [{
+            "saturation": "-100"
+        }]
+    }, {
+        "featureType": "administrative.province",
+        "elementType": "all",
+        "stylers": [{
+            "visibility": "off"
+        }]
+    }, {
+        "featureType": "landscape",
+        "elementType": "all",
+        "stylers": [{
+            "saturation": -100
+        }, {
+            "lightness": 65
+        }, {
+            "visibility": "on"
+        }]
+    }, {
+        "featureType": "poi",
+        "elementType": "all",
+        "stylers": [{
+            "saturation": -100
+        }, {
+            "lightness": "50"
+        }, {
+            "visibility": "simplified"
+        }]
+    }, {
+        "featureType": "road",
+        "elementType": "all",
+        "stylers": [{
+            "saturation": "-100"
+        }]
+    }, {
+        "featureType": "road.highway",
+        "elementType": "all",
+        "stylers": [{
+            "visibility": "simplified"
+        }]
+    }, {
+        "featureType": "road.arterial",
+        "elementType": "all",
+        "stylers": [{
+            "lightness": "30"
+        }]
+    }, {
+        "featureType": "road.local",
+        "elementType": "all",
+        "stylers": [{
+            "lightness": "40"
+        }]
+    }, {
+        "featureType": "transit",
+        "elementType": "all",
+        "stylers": [{
+            "saturation": -100
+        }, {
+            "visibility": "simplified"
+        }]
+    }, {
+        "featureType": "water",
+        "elementType": "geometry",
+        "stylers": [{
+            "hue": "#ffff00"
+        }, {
+            "lightness": -25
+        }, {
+            "saturation": -97
+        }]
+    }, {
+        "featureType": "water",
+        "elementType": "labels",
+        "stylers": [{
+            "lightness": -25
+        }, {
+            "saturation": -100
+        }]
+    }];
     var defaultAddress = {
         lat: 45.496814,
         lng: -73.58248
     };
+    var bounds = new google.maps.LatLngBounds();
+    // bind the map with google maps and initial the map
+    map = new google.maps.Map(document.getElementById("map"), {
+        center: defaultAddress,
+        zoom: 15,
+        mapTypeControl: false,
+        styles: styles
+    });
+    /*
+     * when Google Map API is ready apply
+     * knockout binding to the viewModel
+     */
+    ko.applyBindings(new mapViewModel());
+}
+//'VM'part of the knockoutjs
+var mapViewModel = function() {
+    var self = this;
+    var foursquare;
+    var markers = [];
     var defaultNeighborhood = '3455 Chemin de la Côte-des-Neiges, Montréal, QC H3H, Canada';
     var neighborhoodMarker = []; // create a blank array to store the makers
     self.neighborhood = ko.observable('');
@@ -35,9 +141,8 @@ var mapViewModel = function() {
     self.fliteredMessage = ko.observable('Fliter by the name');
     self.keyword = ko.observable('');
     self.nearByPlaces = ko.observableArray([]); // nearby places based on the neighborhood location
-    var bounds = new google.maps.LatLngBounds();
-    self.toggleSymbol = ko.observable('show list');  //holds value for list togglings
-    self.filteredList = ko.observableArray([]);// array of flitered places
+    self.toggleSymbol = ko.observable('show list'); //holds value for list togglings
+    self.filteredList = ko.observableArray([]); // array of flitered places
     // create the infoWindow to be used for the marker is clicked to open
     if (typeof google !== "undefined") {
         var infoWindow = new google.maps.InfoWindow({
@@ -47,10 +152,10 @@ var mapViewModel = function() {
     }
     //toggles the list view
     this.listToggle = function() {
-        if(self.toggleSymbol() === 'hide list') {
-          self.toggleSymbol('show list');
+        if (self.toggleSymbol() === 'hide list') {
+            self.toggleSymbol('show list');
         } else {
-          self.toggleSymbol('hide list');
+            self.toggleSymbol('hide list');
         }
     };
     // update the neighborhood
@@ -62,13 +167,8 @@ var mapViewModel = function() {
         }
     });
     // initial the map object
-    initMap();
+    // initMap();
 
-    // center the map and remove the animation when the infowindow is closed
-    google.maps.event.addListener(infoWindow, 'closeclick', function() {
-        var center = map.getCenter();
-        map.setCenter(center);
-    });
     // center the map when the window resize
     google.maps.event.addDomListener(window, "resize", function() {
         var center = map.getCenter();
@@ -81,126 +181,11 @@ var mapViewModel = function() {
         $("#map").width($(window).width());
     });
 
-    function initMap() {
-        /*
-        This is google maps customized styles "Subtle Grayscale " 
-        obtained from the https://snazzymaps.com/style/15/subtle-grayscale,
-        attributed to the author Paulo Avila
-        */
-        var styles = [{
-            "featureType": "administrative",
-            "elementType": "all",
-            "stylers": [{
-                "saturation": "-100"
-            }]
-        }, {
-            "featureType": "administrative.province",
-            "elementType": "all",
-            "stylers": [{
-                "visibility": "off"
-            }]
-        }, {
-            "featureType": "landscape",
-            "elementType": "all",
-            "stylers": [{
-                "saturation": -100
-            }, {
-                "lightness": 65
-            }, {
-                "visibility": "on"
-            }]
-        }, {
-            "featureType": "poi",
-            "elementType": "all",
-            "stylers": [{
-                "saturation": -100
-            }, {
-                "lightness": "50"
-            }, {
-                "visibility": "simplified"
-            }]
-        }, {
-            "featureType": "road",
-            "elementType": "all",
-            "stylers": [{
-                "saturation": "-100"
-            }]
-        }, {
-            "featureType": "road.highway",
-            "elementType": "all",
-            "stylers": [{
-                "visibility": "simplified"
-            }]
-        }, {
-            "featureType": "road.arterial",
-            "elementType": "all",
-            "stylers": [{
-                "lightness": "30"
-            }]
-        }, {
-            "featureType": "road.local",
-            "elementType": "all",
-            "stylers": [{
-                "lightness": "40"
-            }]
-        }, {
-            "featureType": "transit",
-            "elementType": "all",
-            "stylers": [{
-                "saturation": -100
-            }, {
-                "visibility": "simplified"
-            }]
-        }, {
-            "featureType": "water",
-            "elementType": "geometry",
-            "stylers": [{
-                "hue": "#ffff00"
-            }, {
-                "lightness": -25
-            }, {
-                "saturation": -97
-            }]
-        }, {
-            "featureType": "water",
-            "elementType": "labels",
-            "stylers": [{
-                "lightness": -25
-            }, {
-                "saturation": -100
-            }]
-        }];
-        // bind the map with google maps and initial the map
-        map = new google.maps.Map(document.getElementById("map"), {
-            center: defaultAddress,
-            zoom: 15,
-            mapTypeControl: false,
-            styles: styles
-        });
 
-
-        setDefaultNeighborhood(defaultNeighborhood);
-        // initial the map using the default location
-        function setDefaultNeighborhood(defaultNeighborhood) {
-            var request = {
-                query: defaultNeighborhood
-            };
-            service = new google.maps.places.PlacesService(map);
-            service.textSearch(request, neighborhoodCallback);
-        }
-
-        // callback method 
-        function neighborhoodCallback(results, status) {
-            if (status == google.maps.places.PlacesServiceStatus.OK) {
-                createMarkersForNeighborhood(results[0]);
-                getNeiborhoodInformation(results[0]);
-            } else {
-                $('.places').html('failed to load the defaultNeighborhood')
-                console.log('failed to load the defaultNeighborhood');
-            }
-        }
-
-        
+    setDefaultNeighborhood(defaultNeighborhood);
+    autocompletion();
+    // use google maps auto-completion for location entry 
+    function autocompletion() {
         // find search box DOM element
         var searchBox = document.getElementById('search-area');
         // use the google maps Autocomplete
@@ -221,6 +206,25 @@ var mapViewModel = function() {
                 getNeiborhoodInformation(place);
             }
         });
+    }
+    // initial the map using the default location
+    function setDefaultNeighborhood(defaultNeighborhood) {
+        var request = {
+            query: defaultNeighborhood
+        };
+        service = new google.maps.places.PlacesService(map);
+        service.textSearch(request, neighborhoodCallback);
+    }
+
+    // callback method 
+    function neighborhoodCallback(results, status) {
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+            createMarkersForNeighborhood(results[0]);
+            getNeiborhoodInformation(results[0]);
+        } else {
+            $('.places').html('failed to load the defaultNeighborhood');
+            console.log('failed to load the defaultNeighborhood');
+        }
     }
     // set the locaion, titie and icon for the neighborhood marker
     function createMarkersForNeighborhood(place) {
@@ -278,13 +282,13 @@ var mapViewModel = function() {
                 mapBounds = new google.maps.LatLngBounds(
                     new google.maps.LatLng(bounds.sw.lat, bounds.sw.lng),
                     new google.maps.LatLng(bounds.ne.lat, bounds.ne.lng));
-                     //map display responsively when the broswer window resized
-                    // google.maps.event.addDomListener(window, 'resize', function() {
-                      map.fitBounds(mapBounds); // `mapBounds` is a `LatLngBounds` object
-                    // });
+                //map display responsively when the broswer window resized
+                // google.maps.event.addDomListener(window, 'resize', function() {
+                map.fitBounds(mapBounds); // `mapBounds` is a `LatLngBounds` object
+                // });
             }
         }).fail(function(e) {
-            $('.places').html('failed to load foursquare json')
+            $('.places').html('failed to load foursquare json');
             console.log('failed to load foursquare json');
         });
     }
@@ -334,23 +338,27 @@ var mapViewModel = function() {
             map.panBy(0, -250);
             infoWindow.open(map, this);
         });
-        
+        // center the map and remove the animation when the infowindow is closed
+        google.maps.event.addListener(infoWindow, 'closeclick', function() {
+            var center = map.getCenter();
+            map.setCenter(center);
+        });
     }
     // when the marker is clicked add bounce animation
     function markerAnimated(marker) {
-         if (marker.getAnimation() !== null) {
-              marker.setAnimation(null);
-            } else {
-              map.setCenter(marker.position);
-              marker.setAnimation(google.maps.Animation.BOUNCE);
-              stopAnimation(marker);
-            }
+        if (marker.getAnimation() !== null) {
+            marker.setAnimation(null);
+        } else {
+            map.setCenter(marker.position);
+            marker.setAnimation(google.maps.Animation.BOUNCE);
+            stopAnimation(marker);
+        }
     }
     // set timeout for the clicked animation
     function stopAnimation(marker) {
-            setTimeout(function () {
-                marker.setAnimation(null);
-            }, 3000);
+        setTimeout(function() {
+            marker.setAnimation(null);
+        }, 3000);
     }
     // remove neighborhood marker from the map
     function removeNeighborhoodMarker() {
@@ -422,19 +430,11 @@ var mapViewModel = function() {
         }
     };
     // clear the fliterList and reset the list with the original list
-    self.clearFilter = function () {
+    self.clearFilter = function() {
         self.filteredList(self.nearByPlaces());
         self.fliteredMessage('Fliter by the name');
-        for(var marker in markers) {
-          markers[marker].setMap(map);
+        for (var marker in markers) {
+            markers[marker].setMap(map);
         }
     };
 };
-/*
- * when document is ready
- * use IIFE invoke the map initial funtion 
- * and knockout binding to the viewModel
- */
-$(function() {
-    ko.applyBindings(new mapViewModel());
-});
