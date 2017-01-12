@@ -25,6 +25,7 @@
     <div id="filterKeyword">
         <input data-bind="value: keyword,attr: {placeholder: fliteredMessage}" class="input-area">
         <button data-bind="click: $root.filterKeyword" class="matchedPlace">Find</button>
+        <button data-bind="click: $root.clearFilter" class="clearFilter">Clear Fliter</button>
     </div>
     <div class="places" data-bind="visible: toggleSymbol() !== 'show list'">
         <ul class="placeList" data-bind="foreach: nearByPlaces">

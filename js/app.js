@@ -37,7 +37,7 @@ var mapViewModel = function() {
     self.nearByPlaces = ko.observableArray([]); // nearby places based on the neighborhood location
     var bounds = new google.maps.LatLngBounds();
     self.toggleSymbol = ko.observable('show list');  //holds value for list togglings
-    // self.filteredList = ko.observable([]);// array of flitered places
+    self.filteredList = ko.observable([]);// array of flitered places
     // create the infoWindow to be used for the marker is clicked to open
     if (typeof google !== "undefined") {
         var infoWindow = new google.maps.InfoWindow({
@@ -333,12 +333,18 @@ var mapViewModel = function() {
               marker.setAnimation(null);
             } else {
               marker.setAnimation(google.maps.Animation.BOUNCE);
+              stopAnimation(marker);
             }
             infoWindow.setContent(venueContent);
             map.setCenter(marker.position);
             map.panBy(0, -250);
             infoWindow.open(map, this);
         });
+        function stopAnimation(marker) {
+            setTimeout(function () {
+                marker.setAnimation(null);
+            }, 3000);
+        }
     }
     // remove neighborhood marker from the map
     function removeNeighborhoodMarker() {
@@ -380,7 +386,6 @@ var mapViewModel = function() {
      */
     self.filterKeyword = function() {
         var searchWord = self.keyword().toLowerCase();
-        var currentArray = markers;
         var foundFlag = false;
         if (!searchWord) {
             window.alert('No place is founded, please validate your input');
@@ -391,7 +396,7 @@ var mapViewModel = function() {
             //array and place the marker on the map
             for (var marker in markers) {
                 if (markers[marker].title.toLowerCase().indexOf(searchWord) !== -1) {
-                    currentMarker = markers[marker];
+                    self.filteredList.push(markers[marker]);
                     google.maps.event.trigger(markers[marker], 'click');
                     foundFlag = true;
                 } else {
@@ -409,6 +414,10 @@ var mapViewModel = function() {
                 }
             }
         }
+    };
+    // clear the fliterList and reset the list with the original list
+    self.clearFilter = function () {
+
     };
 };
 /*
