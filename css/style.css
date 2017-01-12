@@ -39,7 +39,7 @@ html, body {
     display: -ms-flexbox;
     display: flex;
     border-radius: 10px;
-    width:50%;
+    width: 50%;
     height: 40px;
     position: absolute;
     margin-left: 10px;
@@ -157,6 +157,6 @@ html, body {
     display: inline;
 }
 
-.gm-style-iw{
+.gm-style-iw {
     max-height: 300px;
 }

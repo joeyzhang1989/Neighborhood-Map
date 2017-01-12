@@ -24,7 +24,7 @@ var map; // declares a global map variable
 // initial the google map
 function initMap() {
     /*
-    This is google maps customized styles "Subtle Grayscale " 
+    This is google maps customized styles "Subtle Grayscale "
     obtained from the https://snazzymaps.com/style/15/subtle-grayscale,
     attributed to the author Paulo Avila
     */
@@ -184,7 +184,7 @@ var mapViewModel = function() {
 
     setDefaultNeighborhood(defaultNeighborhood);
     autocompletion();
-    // use google maps auto-completion for location entry 
+    // use google maps auto-completion for location entry
     function autocompletion() {
         // find search box DOM element
         var searchBox = document.getElementById('search-area');
@@ -216,7 +216,7 @@ var mapViewModel = function() {
         service.textSearch(request, neighborhoodCallback);
     }
 
-    // callback method 
+    // callback method
     function neighborhoodCallback(results, status) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
             createMarkersForNeighborhood(results[0]);
@@ -228,7 +228,7 @@ var mapViewModel = function() {
     }
     // set the locaion, titie and icon for the neighborhood marker
     function createMarkersForNeighborhood(place) {
-        // customize the icon image 
+        // customize the icon image
         var image = {
             url: 'img/neighborhood.png',
             // This marker is 48 pixels wide by 48 pixels high.
@@ -292,7 +292,7 @@ var mapViewModel = function() {
             console.log('failed to load foursquare json');
         });
     }
-    // create the markers use the info returned by the foursquare API   
+    // create the markers use the info returned by the foursquare API
     function createVenueMarkers(venue) {
         var name = venue.name();
         var category = venue.category();
@@ -302,7 +302,7 @@ var mapViewModel = function() {
         var imgSrc = venue.imgSrc();
         var rating = venue.rating();
         var venueURL = venue.url();
-        // customize the icon image 
+        // customize the icon image
         var image = {
             url: 'img/coffee.png',
             // This marker is 32 pixels wide by 32 pixels high.
@@ -383,8 +383,8 @@ var mapViewModel = function() {
     }
     /**
      * when the itme on the display list is clicked
-     * the correspoding marker if the item name matched 
-     * with the marker's titleon the map will be focused and opend 
+     * the correspoding marker if the item name matched
+     * with the marker's titleon the map will be focused and opend
      */
     self.focusMarker = function(item) {
         var vName = item.name();
@@ -395,8 +395,8 @@ var mapViewModel = function() {
         }
     };
     /**
-     * incurred when the user click the find button 
-     * to search for the matched venue results 
+     * incurred when the user click the find button
+     * to search for the matched venue results
      */
     self.filterKeyword = function() {
         var searchWord = self.keyword().toLowerCase();
@@ -407,8 +407,8 @@ var mapViewModel = function() {
         } else {
             //clear the array
             self.filteredList([]);
-            //Loop through the markers array and see if the search keyword matches 
-            //with any venue name, if so push that object to the filteredList 
+            //Loop through the markers array and see if the search keyword matches
+            //with any venue name, if so push that object to the filteredList
             //array and place the marker on the map
             for (var place in self.nearByPlaces()) {
                 if (self.nearByPlaces()[place].name().toLowerCase().indexOf(searchWord) !== -1) {
