@@ -259,7 +259,7 @@ var mapViewModel = function() {
         });
         neighborhoodMarker.push(marker);
         // if a marker is clicked, open the infowindow
-        var innerHTML = '<div>' + marker.title + '</div>';
+        var innerHTML = '<div class="neighborhoodTitle">' + marker.title + '</div>';
         google.maps.event.addListener(marker, 'click', function() {
             infoWindow.setContent(innerHTML);
             infoWindow.open(map, this);
